@@ -1085,7 +1085,7 @@ var pluginManager = function pluginManager() {
             dbName = encodeURIComponent(config.mongodb.username) + ":" + encodeURIComponent(utils.decrypt(config.mongodb.password)) + "@" + dbName;
         }
 
-        if (dbName.indexOf('mongodb://') !== 0) {
+        if (dbName.match(/mongodb(?:\+srv)?:\/\/.*/) === null) {
             dbName = 'mongodb://' + dbName;
         }
 
