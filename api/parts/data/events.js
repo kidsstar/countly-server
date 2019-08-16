@@ -9,7 +9,8 @@ var countlyEvents = {},
     async = require('async'),
     crypto = require('crypto'),
     Promise = require("bluebird"),
-    plugins = require('../../../plugins/pluginManager.js');
+    plugins = require('../../../plugins/pluginManager.js'),
+    moment = require('moment-timezone');
 
 /**
 * Process JSON decoded events data from request
@@ -108,6 +109,8 @@ countlyEvents.processEvents = function(params) {
                     }
                 }
             }
+
+            insertRawEvent(params);
 
             async.map(Object.keys(metaToFetch), fetchEventMeta, function(err2, eventMetaDocs) {
                 var appSgValues = {};
@@ -547,6 +550,116 @@ function getInvertedValues(obj) {
     }
 
     return invObj;
+}
+
+function insertRawEvent(params) {
+
+  let user_properties = [];
+/*
+  user_properties.push({
+    "key": "first_open_time",
+    "value": {
+      "string_value": null,
+      "int_value": "1564635600000",
+      "float_value": null,
+      "double_value": null,
+      "set_timestamp_micros": "1564633429977749"
+    }
+  });
+*/
+
+  let device = {
+    category: params.app.type,
+    mobile_brand_name: "",
+    mobile_model_name: params.app_user.d,
+    mobile_marketing_name: params.app_user.d,
+    mobile_os_hardware_model: params.app_user.d,
+    operating_system: params.app_user.p,
+    operating_system_version: params.app_user.pv,
+    vendor_id: "",
+    advertising_id: "",
+    language: params.app_user.la,
+    is_limited_ad_tracking: false,
+    time_zone_offset_seconds: (params.time.now - params.time.nowUTC) / 1000,
+    browser: null,
+    browser_version: null,
+    web_info: null
+  };
+
+  let geo = {
+    continent: "",
+    country: params.app_user.cc,
+    region: params.app_user.rgn,
+    city: params.app_user.cty,
+    sub_continent: "",
+    metro: ""
+  };
+
+  let app_info = {
+    id: params.app.name,
+    version: params.app_user.av.replace(/:/g, "."),
+    install_store: "",
+    firebase_app_id: "",
+    install_source: ""
+  };
+
+  for (let index in params.qstring.events) {
+    let event = params.qstring.events[index];
+
+    let event_params = [];
+    for (let segument_key in event.segmentation) {
+
+      // TODO: Support int and float values
+      event_params.push({
+        key: segument_key,
+        value: {
+          string_value: event.segmentation[segument_key],
+          int_value: null,
+          float_value: null,
+          double_value: null,
+        }
+      });
+    }
+
+    if (event.sum != null) {
+      event_params.push({
+        key: event.key,
+        value: {
+          string_value: null,
+          int_value: null,
+          float_value: event.sum,
+          double_value: null,
+        }
+      });
+    }
+
+    event_date = moment(event.timestamp);
+    micro_timestamp = event.timestamp * 1000;
+
+    common.db.collection("raw_events_"+ moment().format("YYYYMMDD") ).insert({
+      event_date: event_date.format("YYYYMMDD"),
+      event_timestamp: micro_timestamp,
+      event_name: event.key,
+      event_params: event_params,
+      event_previous_timestamp: micro_timestamp, //tmp
+      event_value_in_usd: null,
+      event_bundle_sequence_id: params.app_user.sc, //tmp
+      event_server_timestamp_offset: 0,
+      user_id: null,
+      user_pseudo_id: params.app_user._id,
+      user_properties: user_properties,
+      user_first_touch_timestamp: micro_timestamp, //tmp
+      user_ltv: null,
+      device: device,
+      geo: geo,
+      app_info: app_info,
+      traffic_source: null,
+      stream_id: 0, //tmp
+      platform: params.app_user.p,
+      event_dimensions: null
+    });
+
+  }
 }
 
 module.exports = countlyEvents;
