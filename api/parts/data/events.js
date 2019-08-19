@@ -579,7 +579,7 @@ function insertRawEvent(params) {
     vendor_id: "",
     advertising_id: "",
     language: params.app_user.la,
-    is_limited_ad_tracking: false,
+    is_limited_ad_tracking: "NO",
     time_zone_offset_seconds: (params.time.now - params.time.nowUTC) / 1000,
     browser: null,
     browser_version: null,
@@ -634,7 +634,7 @@ function insertRawEvent(params) {
     }
 
     event_date = moment(event.timestamp);
-    micro_timestamp = event.timestamp * 1000;
+    micro_timestamp = event.timestamp + "000";
 
     common.db.collection("raw_events_"+ moment().format("YYYYMMDD") ).insert({
       event_date: event_date.format("YYYYMMDD"),
@@ -654,7 +654,7 @@ function insertRawEvent(params) {
       geo: geo,
       app_info: app_info,
       traffic_source: null,
-      stream_id: 0, //tmp
+      stream_id: null,
       platform: params.app_user.p,
       event_dimensions: null
     });
