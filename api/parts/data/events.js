@@ -609,32 +609,21 @@ function insertRawEvent(params) {
     let event_params = [];
     for (let segument_key in event.segmentation) {
 
-      // TODO: Support int and float values
+      let segument_value = event.segmentation[segument_key];
+      let is_number = Number.isFinite(segument_value);
       event_params.push({
         key: segument_key,
         value: {
-          string_value: event.segmentation[segument_key],
+          string_value: is_number ? null : segument_value,
           int_value: null,
           float_value: null,
-          double_value: null,
+          double_value: is_number ? segument_value : null
         }
       });
     }
 
-    if (event.sum != null) {
-      event_params.push({
-        key: event.key,
-        value: {
-          string_value: null,
-          int_value: null,
-          float_value: event.sum,
-          double_value: null,
-        }
-      });
-    }
-
-    event_date = moment(event.timestamp);
-    micro_timestamp = event.timestamp + "000";
+    let event_date = moment(event.timestamp);
+    let micro_timestamp = event.timestamp + "000";
 
     common.db.collection("raw_events_"+ moment().format("YYYYMMDD") ).insert({
       event_date: event_date.format("YYYYMMDD"),
