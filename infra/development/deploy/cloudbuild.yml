@@ -2,11 +2,20 @@ steps:
   - name: 'gcr.io/cloud-builders/kubectl'
     id: 'Apply Deployment Manifest'
     args: ['apply', '-f', 'infra/development/deploy/deployment.yml']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=asia-northeast1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=countly-dev-cls'
 
   - name: 'gcr.io/cloud-builders/kubectl'
     id: 'Apply Service Manifest'
     args: ['apply', '-f', 'infra/development/deploy/service.yml']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=asia-northeast1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=countly-dev-cls'
 
   - name: 'gcr.io/cloud-builders/kubectl'
     id: 'Apply Ingress Manifest'
     args: ['apply', '-f', 'infra/development/deploy/ingress.yml']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=asia-northeast1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=countly-dev-cls'
