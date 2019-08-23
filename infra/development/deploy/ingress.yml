@@ -1,0 +1,12 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: countly-dev-ing
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "countly-dev-nw-ip-ing"
+    kubernetes.io/ingress.class: "gce"
+    ingress.gcp.kubernetes.io/pre-shared-cert: "countly-development-cert"
+spec:
+  backend:
+    serviceName: countly-dev-srv
+    servicePort: 80

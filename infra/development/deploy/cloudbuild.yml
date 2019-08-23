@@ -1,11 +1,12 @@
 steps:
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'Build Image'
-    args: ['build', '-t', 'gcr.io/pretendland-firebase/countly:$SHORT_SHA', '.', '-f', 'Dockerfile-core']
+  - name: 'gcr.io/cloud-builders/kubectl'
+    id: 'Apply Deployment Manifest'
+    args: ['apply', '-f', 'infra/development/deploy/deployment.yml']
 
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'Push to GCR'
-    args: ['push', 'gcr.io/pretendland-firebase/countly:$SHORT_SHA']
+  - name: 'gcr.io/cloud-builders/kubectl'
+    id: 'Apply Service Manifest'
+    args: ['apply', '-f', 'infra/development/deploy/service.yml']
 
-options:
-  machineType: 'N1_HIGHCPU_8'
+  - name: 'gcr.io/cloud-builders/kubectl'
+    id: 'Apply Ingress Manifest'
+    args: ['apply', '-f', 'infra/development/deploy/ingress.yml']

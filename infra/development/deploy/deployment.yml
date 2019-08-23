@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: countly-dev
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: countly-dev
+    spec:
+      containers:
+      - name: app
+        image: gcr.io/pretendland-firebase/countly
+        envFrom:
+        - secretRef:
+            name: countly-dev-sec
+        ports:
+        - containerPort: 80
+        readinessProbe:
+          httpGet:
+            path: /o/ping
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 3

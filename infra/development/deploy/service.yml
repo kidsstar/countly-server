@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: countly-dev-srv
+  namespace: default
+  labels:
+    app: countly-dev
+spec:
+  ports:
+  - protocol: TCP
+    port: 80
+  selector:
+    app: countly-dev
+  type: NodePort

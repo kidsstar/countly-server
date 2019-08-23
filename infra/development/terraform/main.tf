@@ -137,7 +137,7 @@ resource "google_container_node_pool" "countly-dev-node" {
 }
 
 
-
+/*
 // Cloud Build
 resource "google_cloudbuild_trigger" "countly-dev-build" {
   trigger_template {
@@ -152,3 +152,4 @@ resource "google_cloudbuild_trigger" "countly-dev-build" {
     "frontend/**"
   ]
 }
+*/
