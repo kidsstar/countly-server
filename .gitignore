@@ -22,3 +22,4 @@ frontend/express/public/images/*/
 !frontend/express/public/images/screenshots
 terraform.tfstate*
 .terraform
+*.tfvars

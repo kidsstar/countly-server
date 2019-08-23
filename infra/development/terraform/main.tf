@@ -1,12 +1,6 @@
-locals {
-  project   = "pretendland-firebase"
-  region    = "asia-northeast1"
-  zone      = "asia-northeast1-a"
-}
-
 provider "google" {
-  region = "${local.region}"
-  project = "${local.project}"
+  region = "${var.region}"
+  project = "${var.project}"
 }
 
 // Network
@@ -20,7 +14,7 @@ resource "google_compute_subnetwork" "countly-dev-nw-sub-192" {
   name                     = "countly-dev-nw-sub-192"
   ip_cidr_range            = "192.168.100.0/24"
   network                  = google_compute_network.countly-dev-nw.self_link
-  region                   = "${local.region}"
+  region                   = "${var.region}"
   private_ip_google_access = true
 }
 
@@ -41,14 +35,14 @@ resource "google_compute_global_address" "countly-dev-nw-ip-ing" {
 resource "google_compute_router" "countly-dev-nw-rt" {
   name     = "countly-dev-nw-rt"
   network  = google_compute_network.countly-dev-nw.self_link
-  region   = "${local.region}"
+  region   = "${var.region}"
 }
 
 // Nat
 resource "google_compute_router_nat" "countly-dev-nw-nat" {
   name                               = "countly-dev-nw-nat"
   router                             = "${google_compute_router.countly-dev-nw-rt.name}"
-  region                             = "${local.region}"
+  region                             = "${var.region}"
   nat_ip_allocate_option             = "MANUAL_ONLY"
   nat_ips                            = google_compute_address.countly-dev-nw-ip-nat[*].self_link
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
@@ -58,7 +52,7 @@ resource "google_compute_router_nat" "countly-dev-nw-nat" {
 // Cluster
 resource "google_container_cluster" "countly-dev-cls" {
   name               = "countly-dev-cls"
-  location           = "${local.zone}"
+  location           = "${var.zone}"
   initial_node_count = 1
   min_master_version = "1.12.8-gke.10"
   network            = "${google_compute_network.countly-dev-nw.name}"
@@ -93,8 +87,8 @@ resource "google_container_cluster" "countly-dev-cls" {
 
   master_authorized_networks_config {
     cidr_blocks {
-      cidr_block = "36.3.114.7/32"
-      display_name = "kidsstar"
+      cidr_block = "${var.authorized_networks_cidr}"
+      display_name = "${var.authorized_networks_name}"
     }
   }
 
@@ -121,7 +115,7 @@ resource "google_container_cluster" "countly-dev-cls" {
 // Node-pool
 resource "google_container_node_pool" "countly-dev-node" {
   name         = "countly-dev-node"
-  location     = "${local.zone}"
+  location     = "${var.zone}"
   cluster      = "${google_container_cluster.countly-dev-cls.name}"
   node_count   = 1
 
@@ -148,7 +142,7 @@ resource "google_container_node_pool" "countly-dev-node" {
 resource "google_cloudbuild_trigger" "countly-dev-build" {
   trigger_template {
     branch_name = "master"
-    repo_name   = "github_kidsstar_countly-server"
+    repo_name   = "${var.cloudbuild_repo_name}"
   }
 
   filename = "infra/development/deploy/cloudbuild.yml"
